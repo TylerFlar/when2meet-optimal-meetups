@@ -50,11 +50,7 @@ def schedule_meetings(filename, interval=4):
                     break
             if is_available:
                 availability_dict[parsed_times[time_idx]].append(person)
-
-    items = list(availability_dict.items())
-    random.shuffle(items)
-    availability_dict = dict(items)
-
+                
     availability_dict = dict(
         sorted(availability_dict.items(), key=lambda item: len(item[1]), reverse=True)
     )
