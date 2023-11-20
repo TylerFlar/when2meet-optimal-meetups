@@ -4,13 +4,13 @@ import random
 import argparse
 
 
-def schedule_meetings(filename, interval=4):
+def schedule_meetings(filename, interval=4, usernames=None):
     with open(filename, "r") as file:
         reader = csv.reader(file)
         header = next(reader)
         availability = list(reader)
 
-    people = header[1:]
+    people = [person for person in header[1:] if not usernames or person in usernames]
     times = [row[0] for row in availability]
     parsed_times = [
         time.strptime(time_string, "%A %I:%M:%S %p") for time_string in times
@@ -50,7 +50,7 @@ def schedule_meetings(filename, interval=4):
                     break
             if is_available:
                 availability_dict[parsed_times[time_idx]].append(person)
-                
+
     availability_dict = dict(
         sorted(availability_dict.items(), key=lambda item: len(item[1]), reverse=True)
     )
@@ -141,10 +141,14 @@ if __name__ == "__main__":
         default=4,
         help="Number of consecutive 15-minute intervals.",
     )
+    parser.add_argument(
+        "--usernames", nargs="*", help="List of usernames to consider for scheduling."
+    )
 
     args = parser.parse_args()
 
-    time_people = schedule_meetings(args.filename, args.interval)
+    # Pass usernames to the schedule_meetings function
+    time_people = schedule_meetings(args.filename, args.interval, args.usernames)
 
     formatted_list = format_output(time_people)
     for time, people in formatted_list:
